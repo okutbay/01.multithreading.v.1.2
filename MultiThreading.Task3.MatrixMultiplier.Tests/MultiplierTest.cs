@@ -12,6 +12,11 @@ namespace MultiThreading.Task3.MatrixMultiplier.Tests
         public void MultiplyMatrix3On3Test()
         {
             TestMatrix3On3(new MatricesMultiplier());
+        }
+
+        [TestMethod]
+        public void MultiplyParallelMatrix3On3Test()
+        {
             TestMatrix3On3(new MatricesMultiplierParallel());
         }
 

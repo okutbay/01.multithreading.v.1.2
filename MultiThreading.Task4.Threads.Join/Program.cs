@@ -10,11 +10,19 @@
  */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MultiThreading.Task4.Threads.Join
 {
     class Program
     {
+        const int TaskAmount = 10;
+        static int someState = 10;
+        static int someState2 = 10;
+        static readonly object someLock = new object();
+        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+
         static void Main(string[] args)
         {
             Console.WriteLine("4.	Write a program which recursively creates 10 threads.");
@@ -28,7 +36,44 @@ namespace MultiThreading.Task4.Threads.Join
 
             // feel free to add your code
 
+            int workerThreads = 0;
+            int completionPortThreads = 0;
+            ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
+            ThreadPool.SetMaxThreads(workerThreads * 2, completionPortThreads * 2);
+
+            for (int taskNumber = 1; taskNumber <= TaskAmount; taskNumber++)
+            {
+                new Thread(DisplayState).Start(taskNumber);
+
+                ThreadPool.QueueUserWorkItem(
+                    new WaitCallback(DisplayState2), someState2);
+            }
+
             Console.ReadLine();
+        }
+
+        private static void DisplayState(object state)
+        {
+            lock (someLock)
+            {
+                someState--;
+                Console.WriteLine($"state1: {someState}");
+            }
+        }
+
+        private static void DisplayState2(object state)
+        {
+            semaphoreSlim.Wait();
+
+            lock (someLock)
+            {
+                int currentState = (int)state;
+                currentState--;
+                Console.WriteLine($"state2: {currentState}");
+                someState2 = currentState;
+            }
+
+            semaphoreSlim.Release();
         }
     }
 }

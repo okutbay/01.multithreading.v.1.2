@@ -2,16 +2,21 @@
 *  Create a Task and attach continuations to it according to the following criteria:
    a.    Continuation task should be executed regardless of the result of the parent task.
    b.    Continuation task should be executed when the parent task finished without success.
-   c.    Continuation task should be executed when the parent task would be finished with fail and parent task thread should be reused for continuation
+   c.    Continuation task should be executed when the parent task would be finished with fail 
+and parent task thread should be reused for continuation
    d.    Continuation task should be executed outside of the thread pool when the parent task would be cancelled
    Demonstrate the work of the each case with console utility.
 */
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MultiThreading.Task6.Continuation
 {
     class Program
     {
+        
+
         static void Main(string[] args)
         {
             Console.WriteLine("Create a Task and attach continuations to it according to the following criteria:");
@@ -24,7 +29,33 @@ namespace MultiThreading.Task6.Continuation
 
             // feel free to add your code
 
+            var firstTask = Task.Factory.StartNew(() => First());
+
+            var secondTask = firstTask.ContinueWith(
+                      prev => Second(),
+                      TaskContinuationOptions.AttachedToParent);
+
+            var onError = secondTask.ContinueWith(
+                                  prev => Console.WriteLine(prev.Exception),
+                                  TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent);
+
+            var onSuccess = secondTask.ContinueWith(
+                      prev => Console.WriteLine("secondTask success"),
+                      TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.AttachedToParent);
+
+
             Console.ReadLine();
+        }
+
+        static void First() 
+        {
+            Thread.Sleep(1000);
+        }
+
+        static void Second()
+        {
+            Console.WriteLine("started second task");
+            //throw new Exception("faulted");
         }
     }
 }
