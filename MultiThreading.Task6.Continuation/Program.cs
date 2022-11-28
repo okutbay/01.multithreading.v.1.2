@@ -31,17 +31,18 @@ namespace MultiThreading.Task6.Continuation
 
             var firstTask = Task.Factory.StartNew(() => First());
 
-            var secondTask = firstTask.ContinueWith(
-                      prev => Second(),
-                      TaskContinuationOptions.AttachedToParent);
+            var secondTask = firstTask.ContinueWith(x =>
+            {
+                Console.WriteLine("started second task");
+            });
 
             var onError = secondTask.ContinueWith(
                                   prev => Console.WriteLine(prev.Exception),
-                                  TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent);
+                                  TaskContinuationOptions.OnlyOnFaulted);
 
             var onSuccess = secondTask.ContinueWith(
                       prev => Console.WriteLine("secondTask success"),
-                      TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.AttachedToParent);
+                      TaskContinuationOptions.OnlyOnRanToCompletion);
 
 
             Console.ReadLine();
@@ -52,10 +53,5 @@ namespace MultiThreading.Task6.Continuation
             Thread.Sleep(1000);
         }
 
-        static void Second()
-        {
-            Console.WriteLine("started second task");
-            //throw new Exception("faulted");
-        }
     }
 }
