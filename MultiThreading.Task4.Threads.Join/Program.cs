@@ -17,9 +17,6 @@ namespace MultiThreading.Task4.Threads.Join
 {
     class Program
     {
-        const int TaskAmount = 10;
-        static int someState = 10;
-        static int someState2 = 10;
         static readonly object someLock = new object();
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
 
@@ -35,44 +32,26 @@ namespace MultiThreading.Task4.Threads.Join
             Console.WriteLine();
 
             // feel free to add your code
-
-            int workerThreads = 0;
-            int completionPortThreads = 0;
-            ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
-            ThreadPool.SetMaxThreads(workerThreads * 2, completionPortThreads * 2);
-
-            for (int taskNumber = 1; taskNumber <= TaskAmount; taskNumber++)
-            {
-                new Thread(DisplayState).Start(taskNumber);
-
-                ThreadPool.QueueUserWorkItem(
-                    new WaitCallback(DisplayState2), someState2);
-            }
+            CreateRecursiveThreads();
 
             Console.ReadLine();
         }
 
-        private static void DisplayState(object state)
+        private static void CreateRecursiveThreads(int? state = 10)
         {
-            lock (someLock)
+            if (state > 0)
             {
-                someState--;
-                Console.WriteLine($"state1: {someState}");
+                Thread thread = new Thread(() => DisplayState(state));
+                thread.Start();
+                state = state - 1;
+                CreateRecursiveThreads(state);
             }
         }
 
-        private static void DisplayState2(object state)
+        private static void DisplayState(int? state)
         {
             semaphoreSlim.Wait();
-
-            lock (someLock)
-            {
-                int currentState = (int)state;
-                currentState--;
-                Console.WriteLine($"state2: {currentState}");
-                someState2 = currentState;
-            }
-
+            Console.WriteLine($"state: {state}");
             semaphoreSlim.Release();
         }
     }
