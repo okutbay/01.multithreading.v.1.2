@@ -25,20 +25,19 @@ namespace MultiThreading.Task5.Threads.SharedCollection
 
             // feel free to add your code
             var task1 = Task.Factory.StartNew(() => addItem());
-            var task2 = Task.Factory.StartNew(() => printItem());
-            Task.WaitAll(task1, task2);
+            
+            Task.WaitAll(task1);
 
             Console.ReadLine();
         }
 
         private static void addItem()
         {
-            lock (items)
+            for (int i = 0; i < 10; i++)
             {
-                for (int i = 0; i < 10; i++)
-                {
-                    items.Add(items.Count, $"Value {items.Count}");
-                }
+                items.Add(items.Count + 1, $"Value {items.Count + 1}");
+                var task2 = Task.Factory.StartNew(() => printItem());
+                task2.Wait();
             }
         }
 
@@ -46,10 +45,23 @@ namespace MultiThreading.Task5.Threads.SharedCollection
         {
             lock (items)
             {
+                var index = 1;
+                var itemCount = items.Count;
+
+                Console.Write("[");
                 foreach (var item in items)
                 {
-                    Console.WriteLine($"Key: {item.Key}, Value: {item.Value}");
+                    if (index != itemCount)
+                    {
+                        Console.Write($"{item.Key},");
+                    }
+                    else
+                    {
+                        Console.Write($"{item.Key}");
+                    }
+                    index = index + 1;
                 }
+                Console.WriteLine("]");
             }
         }
     }
