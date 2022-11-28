@@ -4,7 +4,7 @@
  * “Task #0 – {iteration number}”.
  */
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace MultiThreading.Task1._100Tasks
 {
@@ -30,8 +30,7 @@ namespace MultiThreading.Task1._100Tasks
         {
             for (int taskNumber = 0; taskNumber < TaskAmount; taskNumber++)
             {
-                Thread thread = new Thread(() => SimpleTask(taskNumber));
-                thread.Start();
+                Task task = Task.Run(() => SimpleTask(taskNumber));
             }
         }
 
