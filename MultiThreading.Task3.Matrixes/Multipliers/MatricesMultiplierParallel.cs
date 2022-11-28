@@ -17,10 +17,10 @@ namespace MultiThreading.Task3.MatrixMultiplier.Multipliers
                 {
                     long sum = 0;
 
-                    Parallel.For(0, m1.ColCount, k =>
+                    for (int k = 0; k < m1.ColCount; k++)
                     {
-                        sum += m1.GetElement(i, k) * m2.GetElement(k, j);
-                    });
+                        sum = sum + (m1.GetElement(i, k) * m2.GetElement(k, j));
+                    }
 
                     resultMatrix.SetElement(i, j, sum);
                 });
