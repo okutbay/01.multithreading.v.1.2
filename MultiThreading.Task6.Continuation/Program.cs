@@ -15,7 +15,7 @@ namespace MultiThreading.Task6.Continuation
 {
     class Program
     {
-        
+
 
         static void Main(string[] args)
         {
@@ -33,7 +33,17 @@ namespace MultiThreading.Task6.Continuation
 
             var secondTask = firstTask.ContinueWith(x =>
             {
+                if (x.Status == TaskStatus.Faulted)
+                {
+                    Console.WriteLine(x.Exception);
+                }
+                else
+                {
+                    Console.WriteLine(x.Result);
+                }
+
                 Console.WriteLine("started second task");
+                Console.WriteLine(x.Result);
             });
 
             var onError = secondTask.ContinueWith(
@@ -42,15 +52,19 @@ namespace MultiThreading.Task6.Continuation
 
             var onSuccess = secondTask.ContinueWith(
                       prev => Console.WriteLine("secondTask success"),
-                      TaskContinuationOptions.OnlyOnRanToCompletion);
-
+                      TaskContinuationOptions.OnlyOnRanToCompletion | 
+                      TaskContinuationOptions.ExecuteSynchronously |
+                      TaskContinuationOptions.LongRunning);
 
             Console.ReadLine();
         }
 
-        static void First() 
+        static string First() 
         {
-            Thread.Sleep(1000);
+            Console.WriteLine("started first task");
+            Thread.Sleep(3000);
+            Console.WriteLine("completed first task");
+            return "some string";
         }
 
     }
